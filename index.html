@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pokédex Nacional Interactiva - Explora los 1025+ Pokémon de todas las generaciones con ilustraciones HD, gritos oficiales, variantes Shiny y estadísticas completas.">
+  <title>Pokédex Nacional | Gen 1 a Gen 9</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Iconos de FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Encabezado de la Aplicación -->
+  <header class="app-header">
+    <div class="logo-container">
+      <div class="pokeball-icon"></div>
+      <h1 class="brand-title">POKÉDEXX <span>NACIONAL</span></h1>
+    </div>
+    <div class="header-stats">
+      Cargados: <span id="contador-cargados">0</span> / 1025
+    </div>
+  </header>
+
+  <!-- Barra de Herramientas (Buscador y Filtros) -->
+  <section class="controls-container">
+    <!-- Buscador Reactivo -->
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" id="campo-busqueda" placeholder="Buscar por nombre o número (ej: Pikachu, 25)..." autocomplete="off">
+      <button id="boton-limpiar-busqueda" class="clear-search" title="Limpiar búsqueda">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Grupo de Filtros y Ordenamiento -->
+    <div class="filters-group">
+      <!-- Filtro de Generación -->
+      <div class="custom-select-wrapper">
+        <select id="filtro-generacion" class="custom-select">
+          <option value="todas">Todas las Generaciones</option>
+          <option value="1">Gen I (Kanto 1 - 151)</option>
+          <option value="2">Gen II (Johto 152 - 251)</option>
+          <option value="3">Gen III (Hoenn 252 - 386)</option>
+          <option value="4">Gen IV (Sinnoh 387 - 493)</option>
+          <option value="5">Gen V (Unova / Teselia 494 - 649)</option>
+          <option value="6">Gen VI (Kalos 650 - 721)</option>
+          <option value="7">Gen VII (Alola 722 - 809)</option>
+          <option value="8">Gen VIII (Galar 810 - 905)</option>
+          <option value="9">Gen IX (Paldea 906 - 1025)</option>
+        </select>
+      </div>
+
+      <!-- Filtro por Tipo -->
+      <div class="custom-select-wrapper">
+        <select id="filtro-tipo" class="custom-select">
+          <option value="todos">Todos los Tipos</option>
+          <option value="normal">Normal</option>
+          <option value="fire">Fuego</option>
+          <option value="water">Agua</option>
+          <option value="grass">Planta</option>
+          <option value="electric">Eléctrico</option>
+          <option value="ice">Hielo</option>
+          <option value="fighting">Lucha</option>
+          <option value="poison">Veneno</option>
+          <option value="ground">Tierra</option>
+          <option value="flying">Volador</option>
+          <option value="psychic">Psíquico</option>
+          <option value="bug">Bicho</option>
+          <option value="rock">Roca</option>
+          <option value="ghost">Fantasma</option>
+          <option value="dragon">Dragón</option>
+          <option value="dark">Siniestro</option>
+          <option value="steel">Acero</option>
+          <option value="fairy">Hada</option>
+        </select>
+      </div>
+
+      <!-- Ordenamiento -->
+      <div class="custom-select-wrapper">
+        <select id="selector-orden" class="custom-select">
+          <option value="id-asc">Número: Menor a Mayor</option>
+          <option value="id-desc">Número: Mayor a Menor</option>
+          <option value="nombre-asc">Nombre: A - Z</option>
+          <option value="nombre-desc">Nombre: Z - A</option>
+          <option value="stat-desc">Estadísticas Base Máximas</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rejilla Principal de Tarjetas Pokémon -->
+  <main>
+    <div id="rejilla-pokedex" class="pokedex-grid">
+      <!-- Tarjetas cargadas dinámicamente desde app.js -->
+    </div>
+  </main>
+
+  <!-- Ventana Modal de Detalles -->
+  <div id="modal-detalle" class="modal-overlay">
+    <div class="modal-content">
+      <button id="boton-cerrar-modal" class="modal-close" title="Cerrar (Esc)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Columna Izquierda del Modal -->
+      <div class="modal-left">
+        <div class="modal-hero-artwork">
+          <img id="modal-imagen" src="" alt="Ilustración del Pokémon">
+        </div>
+        <div class="modal-action-buttons" style="flex-wrap: wrap;">
+          <button id="boton-shiny" class="btn-action">
+            <i class="fa-solid fa-sparkles"></i> Shiny
+          </button>
+          <button id="boton-grito" class="btn-action">
+            <i class="fa-solid fa-volume-high"></i> Grito 🔊
+          </button>
+          <button id="boton-voz-anime" class="btn-action" style="display: none; background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;">
+            <i class="fa-solid fa-microphone"></i> Voz Anime 🎙️
+          </button>
+        </div>
+      </div>
+
+      <!-- Columna Derecha del Modal -->
+      <div class="modal-right">
+        <div class="modal-header-info">
+          <span id="modal-numero-id" class="modal-poke-id">#0000</span>
+          <h2 id="modal-nombre-pokemon" class="modal-poke-name">Nombre</h2>
+          <div id="modal-categoria" class="modal-poke-genus">Categoría</div>
+          <div id="modal-tipos-contenedor" class="types-container" style="margin-top: 0.8rem;"></div>
+        </div>
+
+        <!-- Pestañas de Navegación del Modal -->
+        <div class="modal-tabs-header">
+          <button class="tab-btn active" data-tab="pestana-sobre-mi">Sobre mí</button>
+          <button class="tab-btn" data-tab="pestana-estadisticas">Estadísticas</button>
+          <button class="tab-btn" data-tab="pestana-evolucion">Evolución</button>
+          <button class="tab-btn" data-tab="pestana-movimientos">Movimientos</button>
+        </div>
+
+        <!-- Pestaña 1: Información General -->
+        <div id="pestana-sobre-mi" class="tab-content active">
+          <div id="modal-descripcion-texto" class="description-box">
+            Obteniendo datos del sistema Pokédex...
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="label">Altura</div>
+              <div id="modal-altura" class="value">-- m</div>
+            </div>
+            <div class="info-item">
+              <div class="label">Peso</div>
+              <div id="modal-peso" class="value">-- kg</div>
+            </div>
+            <div class="info-item">
+              <div class="label">Habilidades</div>
+              <div id="modal-habilidades" class="value">--</div>
+            </div>
+            <div class="info-item">
+              <div class="label">Grupo Huevo</div>
+              <div id="modal-grupos-huevo" class="value">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña 2: Estadísticas Base -->
+        <div id="pestana-estadisticas" class="tab-content">
+          <div id="contenedor-estadisticas">
+            <!-- Filas de estadísticas generadas dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Pestaña 3: Cadena de Evolución -->
+        <div id="pestana-evolucion" class="tab-content">
+          <div id="cadena-evolutiva" class="evo-chain-container">
+            <!-- Etapas evolutivas dinámicas -->
+          </div>
+        </div>
+
+        <!-- Pestaña 4: Movimientos -->
+        <div id="pestana-movimientos" class="tab-content">
+          <div id="contenedor-movimientos" style="display: flex; flex-wrap: wrap; gap: 0.5rem; max-height: 250px; overflow-y: auto;">
+            <!-- Etiquetas de movimientos -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
